@@ -2,28 +2,30 @@
 
 #include <QMediaPlayer>
 
-#include <taglib/fileref.h>
 #include <QDebug>
 
 #include <string.h>
 
 
-QString PlayahCore::applicationVersion(){return "0.0.1";}
+QString PlayahCore::applicationVersion(){return "0.0.2";}
 
 struct PlayahCorePrivate{
-    QMediaPlayer* player;
+    PlayahCore* playah;
 
+    QMediaPlayer* player;
     QString fileName;
     bool paused = false;
     bool ablePlayed = false;
-    TagLib::FileRef* tags = nullptr;
 
     PlayahPlaylistModel* playlist;
+
+    QString title;
+    QString author;
 };
+PlayahCorePrivate* PlayahCore::d = new PlayahCorePrivate();
 
 PlayahCore::PlayahCore()
 {
-    d = new PlayahCorePrivate();
     d->player = new QMediaPlayer();
     d->playlist = new PlayahPlaylistModel();
 
@@ -44,50 +46,48 @@ PlayahPlaylistModel* PlayahCore::getPlaylist()
     return d->playlist;
 }
 
-bool PlayahCore::loadFile(QString fileName)
+PlayahCore *PlayahCore::instance()
 {
-    d->player->setMedia(QUrl::fromLocalFile(fileName));
-    if (d->player->error() == QMediaPlayer::Error::NoError){
-
-        char* fn = new char [fileName.toStdString().size()+1];
-        strcpy( fn, fileName.toStdString().c_str() );
-        d->tags = new TagLib::FileRef(fn);
-
-        d->fileName = fileName;
-
-        emit fileLoaded(fileName);
-        d->ablePlayed = true;
-    } else {
-        d->ablePlayed = false;
-    }
-    return d->ablePlayed;
+    if (d->playah == nullptr) d->playah = new PlayahCore();
+    return d->playah;
 }
 
-bool PlayahCore::addFileToPlaylist(QString fileName)
+bool PlayahCore::loadFile(QString fileName)
 {
-    char* fn = new char [fileName.toStdString().size()+1];
-    strcpy( fn, fileName.toStdString().c_str() );
-    TagLib::FileRef tagfile(fn);
+    int newPlaylistItem = addFileToPlaylist(fileName);
 
-    if (!tagfile.isNull()){
-        TagLib::Tag* tag = tagfile.tag();
+    bool itemLoaded = false;
+    if (newPlaylistItem != 0) itemLoaded = loadPlaylistItemNumber(newPlaylistItem-1);
 
-        if (!tag->isEmpty()){
-            QString title = QString(tagfile.tag()->title().to8Bit(true).c_str());
-            QString author = QString(tagfile.tag()->artist().to8Bit(true).c_str());
+    return itemLoaded;
+}
 
-            int songLength = tagfile.audioProperties()->lengthInMilliseconds();
+int PlayahCore::addFileToPlaylist(QString fileName)
+{
+    PlayahPlaylistItem playlistEntry(fileName);
+    d->playlist->append(playlistEntry);
+    return d->playlist->itemCount();
+}
 
-            PlayahPlaylistItem newItem(fileName);
-            newItem.setTitle(title);
-            newItem.setAuthor(author);
-            newItem.setDuration(songLength);
+bool PlayahCore::loadPlaylistItemNumber(int number)
+{
+    if (number > d->playlist->itemCount()) return false;
+    else {
+        PlayahPlaylistItem currentItem = d->playlist->getItem(number);
+        d->title = currentItem.getTitle();
+        d->author = currentItem.getAuthor();
+        QString fileName = currentItem.getFileName();
 
-            d->playlist->append(newItem);
-            return true;
+        d->player->setMedia(QUrl::fromLocalFile(fileName));
+        if (d->player->error() == QMediaPlayer::Error::NoError){
+            d->fileName = fileName;
+            emit fileLoaded(fileName);
+            d->ablePlayed = true;
+        } else {
+            d->ablePlayed = false;
         }
+        return  d->ablePlayed;
     }
-    return false;
 }
 
 void PlayahCore::play(){
@@ -141,26 +141,12 @@ QTime PlayahCore::getDurationAsTime()
 
 QString PlayahCore::getTitle()
 {
-    if (d->tags != nullptr){
-        TagLib::String title = d->tags->tag()->title();
-
-        if ( title != TagLib::String::null){
-            return QString(title.to8Bit(true).c_str());
-        }
-    }
-    return QString("");
+    return d->title;
 }
 
 QString PlayahCore::getAuthor()
 {
-    if (d->tags != nullptr){
-        TagLib::String artist = d->tags->tag()->artist();
-
-        if ( artist != TagLib::String::null){
-            return QString(artist.to8Bit(true).c_str());
-        }
-    }
-    return QString("");
+    return d->author;
 }
 
 QString PlayahCore::getFileName()

@@ -23,7 +23,12 @@ int PlayahPlaylistModel::rowCount(const QModelIndex &) const
 
 int PlayahPlaylistModel::columnCount(const QModelIndex &) const
 {
-    return PlayahPlaylistItem::COLUMNS_END;
+    return COLUMNS_END;
+}
+
+int PlayahPlaylistModel::itemCount()
+{
+    return d->items.count();
 }
 
 QVariant PlayahPlaylistModel::data(const QModelIndex &index, int role) const
@@ -35,13 +40,13 @@ QVariant PlayahPlaylistModel::data(const QModelIndex &index, int role) const
     const PlayahPlaylistItem item = d->items[index.row()];
 
     switch(index.column()){
-    case PlayahPlaylistItem::Title:
+    case Title:
         return item.getTitle();
-    case PlayahPlaylistItem::Author:
+    case Author:
         return item.getAuthor();
-    case PlayahPlaylistItem::Duration:
+    case Duration:
         return QTime::fromMSecsSinceStartOfDay(item.getDuration()).toString("mm:ss");
-    case PlayahPlaylistItem::FileName:
+    case FileName:
         return item.getFileName();
     default:
         return QVariant();
@@ -54,13 +59,13 @@ QVariant PlayahPlaylistModel::headerData(int section, Qt::Orientation orientatio
     if (orientation != Qt::Horizontal) return QVariant();
     if (role != Qt::DisplayRole) return QVariant();
     switch(section){
-    case PlayahPlaylistItem::Title:
+    case Title:
         return tr("Title");
-    case PlayahPlaylistItem::Author:
+    case Author:
         return tr("Author");
-    case PlayahPlaylistItem::Duration:
+    case Duration:
         return tr("Duration");
-    case PlayahPlaylistItem::FileName:
+    case FileName:
         return tr("File name");
     default:
         return QVariant();
@@ -72,6 +77,11 @@ QString PlayahPlaylistModel::getFileName(const QModelIndex &index)
     if (!index.isValid()) return "";
     const PlayahPlaylistItem item = d->items[index.row()];
     return item.getFileName();
+}
+
+const PlayahPlaylistItem PlayahPlaylistModel::getItem(int itemNumber)
+{
+    return d->items[itemNumber];
 }
 
 void PlayahPlaylistModel::append(const PlayahPlaylistItem &item)

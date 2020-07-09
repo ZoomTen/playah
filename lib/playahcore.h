@@ -9,11 +9,15 @@ class PLAYAH_EXPORT PlayahCore : public QObject
 {
     Q_OBJECT
 public:
-    PlayahCore();
+    explicit PlayahCore();
     ~PlayahCore();
 
+    // loads a file into the playlist and then plays them
     bool loadFile(QString fileName);
-    bool addFileToPlaylist(QString fileName);
+
+    // returns the new length of the playlist
+    int addFileToPlaylist(QString fileName);
+    bool loadPlaylistItemNumber(int number);
 
     void play();
     void pause();
@@ -32,9 +36,11 @@ public:
 
     double currentProgress();
 
-    QString applicationVersion();
+    static QString applicationVersion();
 
     PlayahPlaylistModel* getPlaylist();
+
+    static PlayahCore* instance();
 
 signals:
     void trackDurationChanged(qint64 duration);
@@ -42,5 +48,5 @@ signals:
     void fileLoaded(QString fileName);
 
 private:
-    PlayahCorePrivate* d;
+    static PlayahCorePrivate* d;
 };

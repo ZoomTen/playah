@@ -1,21 +1,45 @@
 #include "playahplaylistitem.h"
+#include <QDebug>
+
+struct PlayahPlaylistItemPrivate{
+    QString filename;
+    int duration;
+    std::wstring title;
+    std::wstring author;
+};
 
 PlayahPlaylistItem::PlayahPlaylistItem(QString file)
 {
-    filename_ = file;
+    d = new PlayahPlaylistItemPrivate();
+    d->filename = file;
+
+    TagLib::FileRef fileref(file.toUtf8());
+
+    d->duration = fileref.audioProperties()->lengthInMilliseconds();
+    d->title = fileref.tag()->title().toWString();
+    d->author = fileref.tag()->artist().toWString();
 }
 
 PlayahPlaylistItem::~PlayahPlaylistItem()
 {
 }
 
-QString PlayahPlaylistItem::getFileName() const{ return filename_; }
+QString PlayahPlaylistItem::getFileName() const
+{
+    return d->filename;
+}
 
-QString PlayahPlaylistItem::getTitle() const   { return title_; }
-void PlayahPlaylistItem::setTitle(QString title){ title_ = title; }
+QString PlayahPlaylistItem::getTitle() const
+{
+    return QString::fromStdWString(d->title);
+}
 
-QString PlayahPlaylistItem::getAuthor() const  { return author_; }
-void PlayahPlaylistItem::setAuthor(QString author){ author_ = author; }
+QString PlayahPlaylistItem::getAuthor() const
+{
+    return QString::fromStdWString(d->author);
+}
 
-qint64 PlayahPlaylistItem::getDuration() const { return duration_; }
-void PlayahPlaylistItem::setDuration(qint64 duration){ duration_ = duration; }
+qint64 PlayahPlaylistItem::getDuration() const
+{
+    return d->duration;
+}
