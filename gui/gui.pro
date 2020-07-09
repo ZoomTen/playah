@@ -39,3 +39,6 @@ unix:!macx: LIBS += -L$$OUT_PWD/../lib/ -lplayah
 
 INCLUDEPATH += $$PWD/../lib
 DEPENDPATH += $$PWD/../lib
+
+RESOURCES += \
+    resources.qrc

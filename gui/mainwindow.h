@@ -28,5 +28,7 @@ private:
     void disableControls();
     void enableControls();
     void loadSong(QString filename);
+
+    bool eventFilter(QObject* target, QEvent* event);
 };
 #endif // MAINWINDOW_H

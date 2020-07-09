@@ -10,6 +10,8 @@
 
 #include <QDebug>
 
+#include <QPainter>
+
 struct MainWindowPrivate{
     PlayahCore* playah;
 };
@@ -22,6 +24,9 @@ MainWindow::MainWindow(QWidget *parent)
     d = new MainWindowPrivate();
     d->playah = PlayahCore::instance();
 
+    ui->frame->installEventFilter(this);
+
+//    d->playah = new PlayahCore();
 
     connect(d->playah, &PlayahCore::trackDurationChanged,
             this,      [=](qint64 duration){
@@ -137,6 +142,32 @@ void MainWindow::loadSong(QString filename)
     ui->titleLabel->setText(d->playah->getTitle());
     ui->authorLabel->setText(d->playah->getAuthor());
     enableControls();
+}
+
+bool MainWindow::eventFilter(QObject *target, QEvent *e)
+{
+    if (target == ui->frame){
+        if (e->type() == QEvent::Paint){
+            QRect area = ui->frame->rect();
+            QPainter* p = new QPainter(ui->frame);
+            p->setBrush(Qt::black);
+            p->drawRect(0, 0, area.width()-1, area.height()-1);
+
+            // album art here
+            QImage img;
+            img.load(":/art.jpg");
+
+            p->drawImage(area, img, img.rect());
+            // end album art
+
+            p->end();
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return QMainWindow::eventFilter(target, e);
+    }
 }
 
 void MainWindow::on_addToPlaylist_clicked()
