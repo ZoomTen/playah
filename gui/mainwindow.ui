@@ -58,8 +58,14 @@
            <property name="text">
             <string>No file loaded</string>
            </property>
+           <property name="scaledContents">
+            <bool>false</bool>
+           </property>
            <property name="alignment">
             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -80,9 +86,13 @@
           </widget>
          </item>
          <item row="0" column="4" rowspan="2">
-          <widget class="QToolButton" name="toolButton_4">
+          <widget class="QToolButton" name="skipRight">
            <property name="text">
-            <string>-&gt;</string>
+            <string>Skip to next</string>
+           </property>
+           <property name="icon">
+            <iconset theme="media-skip-forward">
+             <normaloff>.</normaloff>.</iconset>
            </property>
           </widget>
          </item>
@@ -109,9 +119,13 @@
           </widget>
          </item>
          <item row="0" column="0" rowspan="2">
-          <widget class="QToolButton" name="toolButton_5">
+          <widget class="QToolButton" name="skipLeft">
            <property name="text">
-            <string>&lt;-</string>
+            <string>Skip to previous</string>
+           </property>
+           <property name="icon">
+            <iconset theme="media-skip-backward">
+             <normaloff>.</normaloff>.</iconset>
            </property>
           </widget>
          </item>
@@ -132,21 +146,33 @@
          <item>
           <widget class="QToolButton" name="playButton">
            <property name="text">
-            <string>&gt;</string>
+            <string>Play</string>
+           </property>
+           <property name="icon">
+            <iconset theme="media-playback-start">
+             <normaloff>.</normaloff>.</iconset>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QToolButton" name="pauseButton">
            <property name="text">
-            <string>||</string>
+            <string>Pause</string>
+           </property>
+           <property name="icon">
+            <iconset theme="media-playback-pause">
+             <normaloff>.</normaloff>.</iconset>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QToolButton" name="stopButton">
            <property name="text">
-            <string>O</string>
+            <string>Stop</string>
+           </property>
+           <property name="icon">
+            <iconset theme="media-playback-stop">
+             <normaloff>.</normaloff>.</iconset>
            </property>
           </widget>
          </item>
@@ -169,14 +195,22 @@
          <item>
           <widget class="QToolButton" name="seekLeft">
            <property name="text">
-            <string>&lt;&lt;</string>
+            <string>Seek -5 seconds</string>
+           </property>
+           <property name="icon">
+            <iconset theme="media-seek-backward">
+             <normaloff>.</normaloff>.</iconset>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QToolButton" name="seekRight">
            <property name="text">
-            <string>&gt;&gt;</string>
+            <string>Seek +5 seconds</string>
+           </property>
+           <property name="icon">
+            <iconset theme="media-seek-forward">
+             <normaloff>.</normaloff>.</iconset>
            </property>
           </widget>
          </item>
@@ -187,6 +221,9 @@
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
+           </property>
+           <property name="value">
+            <number>99</number>
            </property>
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
@@ -217,7 +254,11 @@
         <item>
          <widget class="QToolButton" name="addToPlaylist">
           <property name="text">
-           <string>+</string>
+           <string>Add to Playlist</string>
+          </property>
+          <property name="icon">
+           <iconset theme="list-add">
+            <normaloff>.</normaloff>.</iconset>
           </property>
          </widget>
         </item>

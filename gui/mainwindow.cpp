@@ -20,7 +20,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     d = new MainWindowPrivate();
-    d->playah = new PlayahCore();
+    d->playah = PlayahCore::instance();
+
 
     connect(d->playah, &PlayahCore::trackDurationChanged,
             this,      [=](qint64 duration){
@@ -63,11 +64,16 @@ MainWindow::MainWindow(QWidget *parent)
             this,               &QApplication::aboutQt);
 
     ui->playlistView->setModel(d->playah->getPlaylist());
+    ui->playlistView->setColumnWidth(0, 400);
+    ui->playlistView->setColumnWidth(1, 200);
+    ui->playlistView->setColumnWidth(2, 400);
 
     connect(ui->playlistView, &QAbstractItemView::doubleClicked,
             this,             [=](const QModelIndex &index){
         d->playah->stop();
-        loadSong(d->playah->getPlaylist()->getFileName(index));
+        d->playah->loadPlaylistItemNumber(index.row());
+        ui->titleLabel->setText(d->playah->getTitle());
+        ui->authorLabel->setText(d->playah->getAuthor());
         d->playah->play();
     });
     disableControls();
@@ -95,6 +101,7 @@ void MainWindow::on_actionOpen_triggered()
         QString selectedFile = dialog.selectedFiles().first();
         if (QFile::exists(selectedFile)){
             loadSong(selectedFile);
+            d->playah->play();
             qDebug() << "OK!";
         } else {
             QMessageBox errorDialog(this);
