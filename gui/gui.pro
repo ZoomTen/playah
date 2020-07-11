@@ -20,11 +20,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     aboutwindow.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    playlistview.cpp
 
 HEADERS += \
     aboutwindow.h \
-    mainwindow.h
+    mainwindow.h \
+    playlistview.h
 
 FORMS += \
     aboutwindow.ui \

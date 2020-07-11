@@ -252,18 +252,38 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
-         <widget class="QToolButton" name="addToPlaylist">
-          <property name="text">
-           <string>Add to Playlist</string>
-          </property>
-          <property name="icon">
-           <iconset theme="list-add">
-            <normaloff>.</normaloff>.</iconset>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QLabel" name="playlistItemCount">
+            <property name="text">
+             <string>99 items</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="playlistTotalLength">
+            <property name="text">
+             <string>length: 59:59:59</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
-         <widget class="QTreeView" name="playlistView"/>
+         <widget class="PlaylistView" name="playlistView"/>
+        </item>
+        <item>
+         <widget class="QLabel" name="playlistHint">
+          <property name="text">
+           <string>Right click anywhere on the playlist to add items. Delete an item by right clicking -&gt; Delete.</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -312,10 +332,16 @@
    <property name="text">
     <string>Open</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
   </action>
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+F4</string>
    </property>
   </action>
   <action name="actionAbout_Qt">
@@ -324,6 +350,13 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>PlaylistView</class>
+   <extends>QTreeView</extends>
+   <header>playlistview.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

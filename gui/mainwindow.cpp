@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include <playahcore.h>
+#include <playahplaylistmodel.h>
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -11,6 +12,8 @@
 #include <QDebug>
 
 #include <QPainter>
+
+#include "playlistview.h"
 
 struct MainWindowPrivate{
     PlayahCore* playah;
@@ -73,12 +76,45 @@ MainWindow::MainWindow(QWidget *parent)
     ui->playlistView->setColumnWidth(1, 200);
     ui->playlistView->setColumnWidth(2, 400);
 
-    connect(ui->playlistView, &QAbstractItemView::doubleClicked,
-            this,             [=](const QModelIndex &index){
+    connect(ui->playlistView->model(), &PlayahPlaylistModel::rowsInserted,
+            this,                      [=](const QModelIndex &, int, int last){
+        ui->playlistItemCount->setText(tr("%n item(s)", "", ++last));
+        ui->playlistTotalLength->setText(tr("Total: %1")
+                                         .arg(d->playah->playlistDurationAsTime()
+                                              .toString("hh:mm:ss")
+                                              )
+                                         );
+    });
+
+    connect(ui->playlistView, &PlaylistView::openFileDialog,
+            this,             [=]{
+        on_actionOpen_triggered();
+    });
+
+    connect(ui->playlistView, &PlaylistView::setDeletedItem,
+            this,             [=](QModelIndex item){
+        int rowId = item.row();
+        if (d->playah->getFileName() ==
+                item.siblingAtColumn(PlayahPlaylistModel::FileName).data()){
+            d->playah->stop();
+            disableControls();
+        }
+        d->playah->getPlaylist()->removeEntryNumber(rowId);
+//        if (item.siblingAtColumn(2).data())
+    });
+
+    connect(ui->playlistView, &PlaylistView::selectedPlaylistItem,
+            this,             [=](QModelIndex item){
         d->playah->stop();
-        d->playah->loadPlaylistItemNumber(index.row());
+        d->playah->loadPlaylistItemNumber(item.row());
+
+        //qDebug() << item.siblingAtColumn(PlayahPlaylistModel::Title).data();
+        //qDebug() << item.siblingAtColumn(PlayahPlaylistModel::Author).data();
+
         ui->titleLabel->setText(d->playah->getTitle());
         ui->authorLabel->setText(d->playah->getAuthor());
+
+        enableControls();
         d->playah->play();
     });
     disableControls();
@@ -106,6 +142,14 @@ void MainWindow::on_actionOpen_triggered()
         QString selectedFile = dialog.selectedFiles().first();
         if (QFile::exists(selectedFile)){
             loadSong(selectedFile);
+
+            // automatically select last item
+            ui->playlistView->setCurrentIndex(
+                        ui->playlistView->model()->index(
+                            ui->playlistView->model()->rowCount()-1,
+                            0)
+                        );
+
             d->playah->play();
             qDebug() << "OK!";
         } else {
@@ -162,12 +206,8 @@ bool MainWindow::eventFilter(QObject *target, QEvent *e)
 
             p->end();
             return true;
-        } else {
-            return false;
-        }
-    } else {
-        return QMainWindow::eventFilter(target, e);
-    }
+        } else return false;
+    } else return QMainWindow::eventFilter(target, e);
 }
 
 void MainWindow::on_addToPlaylist_clicked()
