@@ -1,12 +1,16 @@
 #pragma once
 
+#include "playah_global.h"
 #include <QtCore>
 
-#include "taglib/fileref.h"
-#include "taglib/tag.h"
+#ifdef WIN32
+#define TAGLIB_STATIC
+#endif
+#include <taglib/fileref.h>
+#include <taglib/tag.h>
 
 struct PlayahPlaylistItemPrivate;
-class PlayahPlaylistItem
+class PLAYAH_EXPORT PlayahPlaylistItem
 {
 public:
     PlayahPlaylistItem(QString fileName);

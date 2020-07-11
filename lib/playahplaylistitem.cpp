@@ -13,11 +13,13 @@ PlayahPlaylistItem::PlayahPlaylistItem(QString file)
     d = new PlayahPlaylistItemPrivate();
     d->filename = file;
 
-    TagLib::FileRef fileref(file.toUtf8());
+    TagLib::FileName fn(file.toUtf8());
+    TagLib::FileRef fileref(fn);
 
     d->duration = fileref.audioProperties()->lengthInMilliseconds();
     d->title = fileref.tag()->title().toWString();
     d->author = fileref.tag()->artist().toWString();
+
 }
 
 PlayahPlaylistItem::~PlayahPlaylistItem()

@@ -38,9 +38,14 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 unix:!macx: LIBS += -L$$OUT_PWD/../lib/ -lplayah
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../lib/release/ -lplayah
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../lib/debug/ -lplayah
 
 INCLUDEPATH += $$PWD/../lib
 DEPENDPATH += $$PWD/../lib
+
+win32: INCLUDEPATH += C:/taglib/include
+win32: DEPENDPATH += C:/taglib/include
 
 RESOURCES += \
     resources.qrc

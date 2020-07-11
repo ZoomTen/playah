@@ -35,6 +35,11 @@ HEADERS += \
 unix {
     target.path = /usr/lib
 }
+
 !isEmpty(target.path): INSTALLS += target
 
 unix:!macx: LIBS += -ltag
+
+win32: LIBS += -LC:/taglib/lib/ -ltag -lz
+win32: INCLUDEPATH += C:/taglib/include
+win32: DEPENDPATH += C:/taglib/include

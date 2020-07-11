@@ -1,10 +1,11 @@
 #pragma once
 
+#include "playah_global.h"
 #include <QAbstractTableModel>
 #include "playahplaylistitem.h"
 
 struct PlayahPlaylistModelPrivate;
-class PlayahPlaylistModel : public QAbstractTableModel
+class PLAYAH_EXPORT PlayahPlaylistModel : public QAbstractTableModel
 {
 public:
     enum DisplayColumns{
