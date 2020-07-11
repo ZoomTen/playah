@@ -31,7 +31,13 @@ QString PlayahPlaylistItem::getFileName() const
 
 QString PlayahPlaylistItem::getTitle() const
 {
-    return QString::fromStdWString(d->title);
+    QString title = QString::fromStdWString(d->title);
+    if (title.isEmpty()){
+        QFileInfo fi(d->filename);
+        return fi.baseName();
+    } else {
+        return title;
+    }
 }
 
 QString PlayahPlaylistItem::getAuthor() const

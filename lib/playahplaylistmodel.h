@@ -27,9 +27,13 @@ public:
 
     QString getFileName(const QModelIndex &index);
 
-    const PlayahPlaylistItem getItem(int itemNumber);
+    PlayahPlaylistItem* getItem(int itemNumber);
 
     void append(const PlayahPlaylistItem & item);
+
+    void removeEntryNumber(int i);
+
+    QTime getTotalPlaytime();
 private:
     PlayahPlaylistModelPrivate* d;
 };

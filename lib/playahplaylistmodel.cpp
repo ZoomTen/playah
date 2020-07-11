@@ -79,9 +79,9 @@ QString PlayahPlaylistModel::getFileName(const QModelIndex &index)
     return item.getFileName();
 }
 
-const PlayahPlaylistItem PlayahPlaylistModel::getItem(int itemNumber)
+PlayahPlaylistItem* PlayahPlaylistModel::getItem(int itemNumber)
 {
-    return d->items[itemNumber];
+    return &d->items[itemNumber];
 }
 
 void PlayahPlaylistModel::append(const PlayahPlaylistItem &item)
@@ -89,4 +89,20 @@ void PlayahPlaylistModel::append(const PlayahPlaylistItem &item)
     beginInsertRows(QModelIndex(), d->items.count(), d->items.count());
     d->items.append(item);
     endInsertRows();
+}
+
+void PlayahPlaylistModel::removeEntryNumber(int i)
+{
+    beginRemoveRows(QModelIndex(), i, i);
+    d->items.removeAt(i);
+    endRemoveRows();
+}
+
+QTime PlayahPlaylistModel::getTotalPlaytime()
+{
+    quint64 runTime = 0;
+    for (PlayahPlaylistItem item : d->items){
+        runTime += item.getDuration();
+    }
+    return QTime::fromMSecsSinceStartOfDay(runTime);
 }

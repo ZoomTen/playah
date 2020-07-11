@@ -7,20 +7,17 @@
 #include <string.h>
 
 
-QString PlayahCore::applicationVersion(){return "0.0.2";}
+QString PlayahCore::applicationVersion(){return "0.0.3";}
 
 struct PlayahCorePrivate{
     PlayahCore* playah;
 
     QMediaPlayer* player;
-    QString fileName;
     bool paused = false;
     bool ablePlayed = false;
 
     PlayahPlaylistModel* playlist;
-
-    QString title;
-    QString author;
+    PlayahPlaylistItem*  currentItem;
 };
 PlayahCorePrivate* PlayahCore::d = new PlayahCorePrivate();
 
@@ -44,6 +41,11 @@ PlayahCore::~PlayahCore()
 PlayahPlaylistModel* PlayahCore::getPlaylist()
 {
     return d->playlist;
+}
+
+PlayahPlaylistItem *PlayahCore::getPlaylistItem()
+{
+    return d->currentItem;
 }
 
 PlayahCore *PlayahCore::instance()
@@ -73,14 +75,11 @@ bool PlayahCore::loadPlaylistItemNumber(int number)
 {
     if (number > d->playlist->itemCount()) return false;
     else {
-        PlayahPlaylistItem currentItem = d->playlist->getItem(number);
-        d->title = currentItem.getTitle();
-        d->author = currentItem.getAuthor();
-        QString fileName = currentItem.getFileName();
+        d->currentItem = d->playlist->getItem(number);
+        QString fileName = d->currentItem->getFileName();
 
         d->player->setMedia(QUrl::fromLocalFile(fileName));
         if (d->player->error() == QMediaPlayer::Error::NoError){
-            d->fileName = fileName;
             emit fileLoaded(fileName);
             d->ablePlayed = true;
         } else {
@@ -139,19 +138,24 @@ QTime PlayahCore::getDurationAsTime()
     return QTime::fromMSecsSinceStartOfDay(d->player->duration());
 }
 
+QTime PlayahCore::playlistDurationAsTime()
+{
+    return d->playlist->getTotalPlaytime();
+}
+
 QString PlayahCore::getTitle()
 {
-    return d->title;
+    return d->currentItem->getTitle();
 }
 
 QString PlayahCore::getAuthor()
 {
-    return d->author;
+    return d->currentItem->getAuthor();
 }
 
 QString PlayahCore::getFileName()
 {
-    return d->fileName;
+    return d->currentItem->getFileName();
 }
 
 bool PlayahCore::isPlayable()

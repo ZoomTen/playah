@@ -28,6 +28,8 @@ public:
     QTime getPositionAsTime();
     QTime getDurationAsTime();
 
+    QTime playlistDurationAsTime();
+
     QString getTitle();
     QString getAuthor();
     QString getFileName();
@@ -39,6 +41,7 @@ public:
     static QString applicationVersion();
 
     PlayahPlaylistModel* getPlaylist();
+    PlayahPlaylistItem* getPlaylistItem();
 
     static PlayahCore* instance();
 
