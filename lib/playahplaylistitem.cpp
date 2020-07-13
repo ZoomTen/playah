@@ -29,14 +29,21 @@ PlayahPlaylistItem::PlayahPlaylistItem(QString file)
     d->filename = file;
     d->albumArt = nullptr;
 
-    TagLib::FileName fn(file.toUtf8());
-    TagLib::FileRef fileref(fn);
+    TagLib::FileRef fileref(file.toUtf8().data());
 
-    d->duration = fileref.audioProperties()->lengthInMilliseconds();
-    d->title = fileref.tag()->title().toWString();
-    d->author = fileref.tag()->artist().toWString();
-    d->album = fileref.tag()->album().toWString();
-    d->year = fileref.tag()->year();
+    TagLib::Tag*             tag      = fileref.tag();
+    TagLib::AudioProperties* audProps = fileref.audioProperties();
+
+    if (audProps){
+        d->duration = audProps->lengthInMilliseconds();
+    }
+
+    if (tag){
+        d->title = tag->title().toWString();
+        d->author = tag->artist().toWString();
+        d->album = tag->album().toWString();
+        d->year = tag->year();
+    }
 
     if (file.endsWith(".mp3", Qt::CaseInsensitive)){
         TagLib::MPEG::File mp3(file.toUtf8());

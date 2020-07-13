@@ -364,7 +364,7 @@ QMenu::item:selected { /* when user selects item using mouse or keyboard */
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
@@ -396,7 +396,20 @@ QMenu::item:selected { /* when user selects item using mouse or keyboard */
          </layout>
         </item>
         <item>
-         <widget class="PlaylistView" name="playlistView"/>
+         <widget class="PlaylistView" name="playlistView">
+          <property name="acceptDrops">
+           <bool>true</bool>
+          </property>
+          <property name="dragEnabled">
+           <bool>true</bool>
+          </property>
+          <property name="dragDropMode">
+           <enum>QAbstractItemView::DropOnly</enum>
+          </property>
+          <property name="defaultDropAction">
+           <enum>Qt::CopyAction</enum>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QLabel" name="playlistHint">

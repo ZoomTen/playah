@@ -1,6 +1,8 @@
 #include "playahplaylistmodel.h"
 #include "playahplaylistitem.h"
 
+#include <QDebug>
+
 struct PlayahPlaylistModelPrivate{
     QList<PlayahPlaylistItem> items;
 };
@@ -86,8 +88,16 @@ PlayahPlaylistItem* PlayahPlaylistModel::getItem(int itemNumber)
 
 void PlayahPlaylistModel::append(const PlayahPlaylistItem &item)
 {
+    // TODO: make this call insertInto
     beginInsertRows(QModelIndex(), d->items.count(), d->items.count());
     d->items.append(item);
+    endInsertRows();
+}
+
+void PlayahPlaylistModel::insertInto(const PlayahPlaylistItem &item, int row)
+{
+    beginInsertRows(QModelIndex(), row, row);
+    d->items.insert(row, item);
     endInsertRows();
 }
 
@@ -105,4 +115,55 @@ QTime PlayahPlaylistModel::getTotalPlaytime()
         runTime += item.getDuration();
     }
     return QTime::fromMSecsSinceStartOfDay(runTime);
+}
+
+QStringList PlayahPlaylistModel::mimeTypes() const
+{
+    // apparently I only need this
+    QStringList types;
+    types.append("text/uri-list");
+    return types;
+}
+
+QMimeData *PlayahPlaylistModel::mimeData(const QModelIndexList &indexes) const
+{
+        QMimeData* mime = new QMimeData();
+        QList<QUrl> files;
+        for (QModelIndex index : indexes) {
+            files.append(QUrl(d->items.at(index.row()).getFileName()));
+        }
+        mime->setUrls(files);
+        return mime;
+}
+
+Qt::DropActions PlayahPlaylistModel::supportedDropActions() const
+{
+    return Qt::CopyAction;
+}
+
+Qt::ItemFlags PlayahPlaylistModel::flags(const QModelIndex &index) const
+{
+    Qt::ItemFlags defaultFlags = QAbstractItemModel::flags(index);
+    return Qt::ItemIsDropEnabled | Qt::ItemIsDragEnabled | defaultFlags;
+}
+
+bool PlayahPlaylistModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+{
+    if (action == Qt::CopyAction) {
+        if (data->hasUrls()) {
+            for (QUrl url : data->urls()) {
+                PlayahPlaylistItem newItem(url.toLocalFile());
+                if (row < 0)
+                    this->append(newItem);
+                else
+                    this->insertInto(newItem, row);
+            }
+            return true;
+        } else {
+            return false;
+        }
+    } else if (action == Qt::IgnoreAction) {
+        return true;
+    }
+    return true;
 }
