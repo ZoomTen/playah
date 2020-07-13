@@ -7,13 +7,14 @@
 #include <string.h>
 
 
-QString PlayahCore::applicationVersion(){return "0.0.4";}
+QString PlayahCore::applicationVersion(){return "0.0.5";}
 
 struct PlayahCorePrivate{
     PlayahCore* playah;
 
     QMediaPlayer* player;
     bool paused = false;
+    bool stopped = true;
     bool ablePlayed = true;
 
     PlayahPlaylistModel* playlist;
@@ -32,6 +33,14 @@ PlayahCore::PlayahCore()
     QObject::connect(d->player, &QMediaPlayer::durationChanged,
                      this,      &PlayahCore::trackDurationChanged);
 
+    QObject::connect(d->player, &QMediaPlayer::mediaStatusChanged,
+                     this,      [=](QMediaPlayer::MediaStatus status){
+        if (status == QMediaPlayer::MediaStatus::EndOfMedia){
+            qDebug() << "EOF";
+            d->stopped = true;
+            d->paused = false;
+        }
+    });
     QObject::connect(d->player, &QMediaPlayer::audioAvailableChanged,
             this,      [=](bool available){
             d->ablePlayed = available;
@@ -94,20 +103,26 @@ bool PlayahCore::loadPlaylistItemNumber(int number)
 }
 
 void PlayahCore::play(){
+    d->stopped = false;
+    d->paused = false;
     d->player->play();
 }
 
 void PlayahCore::pause(){
-    if (d->paused){
-        d->player->play();
-        d->paused = false;
-    } else {
-        d->player->pause();
-        d->paused = true;
+    if (!d->stopped){
+        if (d->paused){
+            d->player->play();
+            d->paused = false;
+        } else {
+            d->player->pause();
+            d->paused = true;
+        }
     }
 }
 
 void PlayahCore::stop(){
+    d->stopped = true;
+    d->paused = false;
     d->player->stop();
 }
 
