@@ -68,6 +68,15 @@ MainWindow::MainWindow(QWidget *parent)
         d->playah->stop();
     });
 
+    connect(ui->seekLeft, &QToolButton::clicked,
+            this,           [=]{
+        d->playah->seek(-5000);
+    });
+    connect(ui->seekRight, &QToolButton::clicked,
+            this,           [=]{
+        d->playah->seek(5000);
+    });
+
     connect(ui->seekBar, &QSlider::sliderMoved,
             this,        [=](int position){
         d->playah->seekTo(position);
@@ -322,9 +331,9 @@ void MainWindow::on_addToPlaylist_clicked()
     }
 }
 
-void MainWindow::updatePlaylistCount(const QModelIndex &, int first, int)
+void MainWindow::updatePlaylistCount(const QModelIndex &, int, int)
 {
-    ui->playlistItemCount->setText(tr("%n item(s)", "", ++first));
+    ui->playlistItemCount->setText(tr("%n item(s)", "", d->playah->getPlaylist()->itemCount()));
     ui->playlistTotalLength->setText(tr("Total: %1")
                                      .arg(d->playah->playlistDurationAsTime()
                                           .toString("hh:mm:ss")

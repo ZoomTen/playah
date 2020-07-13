@@ -20,7 +20,7 @@ private slots:
     void on_actionAbout_triggered();
     void on_actionOpen_triggered();
     void on_addToPlaylist_clicked();
-    void updatePlaylistCount(const QModelIndex &, int, int last);
+    void updatePlaylistCount(const QModelIndex &, int, int);
     void checkPlayabilityImmediately();
 
 private:
