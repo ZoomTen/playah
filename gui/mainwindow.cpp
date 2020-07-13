@@ -15,8 +15,13 @@
 
 #include "playlistview.h"
 
+#include <QVariantAnimation>
+
 struct MainWindowPrivate{
     PlayahCore* playah;
+
+    QString  lyricsTabText = QApplication::tr("Lyrics");
+    QImage   albumArt;
 };
 
 MainWindow::MainWindow(QWidget *parent)
@@ -27,9 +32,9 @@ MainWindow::MainWindow(QWidget *parent)
     d = new MainWindowPrivate();
     d->playah = PlayahCore::instance();
 
-    ui->frame->installEventFilter(this);
+    d->albumArt = QImage();
 
-//    d->playah = new PlayahCore();
+    ui->frame->installEventFilter(this);
 
     connect(d->playah, &PlayahCore::trackDurationChanged,
             this,      [=](qint64 duration){
@@ -72,51 +77,52 @@ MainWindow::MainWindow(QWidget *parent)
             this,               &QApplication::aboutQt);
 
     ui->playlistView->setModel(d->playah->getPlaylist());
-    ui->playlistView->setColumnWidth(0, 400);
-    ui->playlistView->setColumnWidth(1, 200);
-    ui->playlistView->setColumnWidth(2, 400);
+    ui->playlistView->setColumnWidth(0, 300);
+    ui->playlistView->setColumnWidth(1, 100);
+    ui->playlistView->setColumnWidth(2, 300);
 
     connect(ui->playlistView->model(), &PlayahPlaylistModel::rowsInserted,
-            this,                      [=](const QModelIndex &, int, int last){
-        ui->playlistItemCount->setText(tr("%n item(s)", "", ++last));
-        ui->playlistTotalLength->setText(tr("Total: %1")
-                                         .arg(d->playah->playlistDurationAsTime()
-                                              .toString("hh:mm:ss")
-                                              )
-                                         );
-    });
+            this,                      &MainWindow::updatePlaylistCount);
+
+    connect(ui->playlistView->model(), &PlayahPlaylistModel::rowsRemoved,
+            this,                      &MainWindow::updatePlaylistCount);
 
     connect(ui->playlistView, &PlaylistView::openFileDialog,
             this,             [=]{
-        on_actionOpen_triggered();
+        on_addToPlaylist_clicked();
     });
 
     connect(ui->playlistView, &PlaylistView::setDeletedItem,
             this,             [=](QModelIndex item){
         int rowId = item.row();
-        if (d->playah->getFileName() ==
-                item.siblingAtColumn(PlayahPlaylistModel::FileName).data()){
-            d->playah->stop();
-            disableControls();
-        }
+//        if (d->playah->getPlaylistItem()){
+//            // if there's an item currently playing
+//            if (d->playah->getFileName() ==
+//                    item.siblingAtColumn(PlayahPlaylistModel::FileName).data()){
+//                d->playah->stop();
+//                disableControls();
+//            }
+//        }
         d->playah->getPlaylist()->removeEntryNumber(rowId);
-//        if (item.siblingAtColumn(2).data())
+        //if (item.siblingAtColumn(2).data())
     });
 
     connect(ui->playlistView, &PlaylistView::selectedPlaylistItem,
             this,             [=](QModelIndex item){
+        // on playlist double click
         d->playah->stop();
         d->playah->loadPlaylistItemNumber(item.row());
 
         //qDebug() << item.siblingAtColumn(PlayahPlaylistModel::Title).data();
         //qDebug() << item.siblingAtColumn(PlayahPlaylistModel::Author).data();
 
-        ui->titleLabel->setText(d->playah->getTitle());
-        ui->authorLabel->setText(d->playah->getAuthor());
-
-        enableControls();
-        d->playah->play();
+        checkPlayabilityImmediately();
     });
+
+    ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->lyricsTab));
+
+    ui->frame->setFixedWidth(0);
+
     disableControls();
 }
 
@@ -149,9 +155,7 @@ void MainWindow::on_actionOpen_triggered()
                             ui->playlistView->model()->rowCount()-1,
                             0)
                         );
-
-            d->playah->play();
-            qDebug() << "OK!";
+            qDebug() << "Loaded!";
         } else {
             QMessageBox errorDialog(this);
             errorDialog.setWindowTitle(tr("File not found!"));
@@ -183,9 +187,36 @@ void MainWindow::enableControls()
 void MainWindow::loadSong(QString filename)
 {
     d->playah->loadFile(filename);
-    ui->titleLabel->setText(d->playah->getTitle());
-    ui->authorLabel->setText(d->playah->getAuthor());
-    enableControls();
+    checkPlayabilityImmediately();
+}
+
+void MainWindow::checkPlayabilityImmediately()
+{
+    // audioAvailable bounces
+    QTimer::singleShot(500, this, [=]{
+        if (d->playah->isPlayable()){
+            updateSongInfo();
+            QString lyrics = d->playah->getPlaylistItem()->getUnsyncLyrics();
+            if (!lyrics.isEmpty()){
+                if (ui->tabWidget->indexOf(ui->lyricsTab) == -1){
+                    ui->tabWidget->insertTab(2, ui->lyricsTab, d->lyricsTabText);
+                    ui->lyricsArea->setPlainText(lyrics);
+                }
+            } else {
+                if (ui->tabWidget->indexOf(ui->lyricsTab) != -1)
+                    ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->lyricsTab));
+            }
+            enableControls();
+            d->playah->play();
+        } else {
+            QMessageBox errorDialog(this);
+            errorDialog.setWindowTitle(tr("Not playable!"));
+            errorDialog.setText(tr("The file you selected can't be played, maybe the codec for it is missing. Try another file."));
+            errorDialog.setIcon(QMessageBox::Critical);
+            errorDialog.exec();
+            disableControls();
+        }
+    });
 }
 
 bool MainWindow::eventFilter(QObject *target, QEvent *e)
@@ -194,20 +225,79 @@ bool MainWindow::eventFilter(QObject *target, QEvent *e)
         if (e->type() == QEvent::Paint){
             QRect area = ui->frame->rect();
             QPainter* p = new QPainter(ui->frame);
-            p->setBrush(Qt::black);
+            p->setBrush(Qt::transparent);
+
+            if (!d->albumArt.isNull())
+                p->drawImage(QRect(0, 0, 64, 64),
+                             d->albumArt,
+                             d->albumArt.rect());
+
             p->drawRect(0, 0, area.width()-1, area.height()-1);
-
-            // album art here
-            QImage img;
-            img.load(":/art.jpg");
-
-            p->drawImage(area, img, img.rect());
-            // end album art
 
             p->end();
             return true;
         } else return false;
     } else return QMainWindow::eventFilter(target, e);
+}
+
+void MainWindow::updateSongInfo()
+{
+    bool noPreviousImage = (d->albumArt.isNull());
+
+    PlayahPlaylistItem* currentItem = d->playah->getPlaylistItem();
+
+    ui->titleLabel->setText(currentItem->getTitle());
+    ui->titleInfo->setText(currentItem->getTitle());
+
+    ui->authorLabel->setText(currentItem->getAuthor());
+    ui->artistInfo->setText(currentItem->getAuthor());
+
+    ui->albumLabel->setText(currentItem->getAlbum());
+    ui->albumInfo->setText(currentItem->getAlbum());
+
+    ui->bpmInfo->setText(currentItem->getBPMString());
+    ui->yearInfo->setText(QString::number(currentItem->getYear()));
+
+    if (noPreviousImage){
+        d->albumArt = currentItem->getAlbumArt() ?
+                      currentItem->getAlbumArt()->scaled(64,64,Qt::IgnoreAspectRatio,Qt::SmoothTransformation) :
+                      QImage();
+
+        if (!d->albumArt.isNull()){
+            QVariantAnimation* anim = new QVariantAnimation(this);
+            anim->setDuration(1000);
+            anim->setStartValue(0);
+            anim->setEndValue(64); // thumbnail size
+            anim->setEasingCurve(QEasingCurve::InOutExpo);
+            connect(anim, &QVariantAnimation::valueChanged,
+                    this,  [=](const QVariant &value){
+                ui->frame->setFixedWidth(value.toInt());
+                this->update();
+            });
+            anim->start();
+        }
+    } else {
+        if (currentItem->getAlbumArt() == nullptr){
+            QVariantAnimation* anim = new QVariantAnimation(this);
+            anim->setDuration(1000);
+            anim->setStartValue(64); // thumbnail size
+            anim->setEndValue(0);
+            anim->setEasingCurve(QEasingCurve::InOutExpo);
+            connect(anim, &QVariantAnimation::valueChanged,
+                    this,  [=](const QVariant &value){
+                ui->frame->setFixedWidth(value.toInt());
+                this->update();
+            });
+            connect(anim, &QVariantAnimation::finished,
+                    this, [=]{
+                d->albumArt = QImage();
+            });
+            anim->start();
+        } else {
+            d->albumArt = currentItem->getAlbumArt()->scaled(64,64,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+            this->update();
+        }
+    }
 }
 
 void MainWindow::on_addToPlaylist_clicked()
@@ -230,4 +320,14 @@ void MainWindow::on_addToPlaylist_clicked()
         }
         // OK
     }
+}
+
+void MainWindow::updatePlaylistCount(const QModelIndex &, int first, int)
+{
+    ui->playlistItemCount->setText(tr("%n item(s)", "", ++first));
+    ui->playlistTotalLength->setText(tr("Total: %1")
+                                     .arg(d->playah->playlistDurationAsTime()
+                                          .toString("hh:mm:ss")
+                                          )
+                                     );
 }

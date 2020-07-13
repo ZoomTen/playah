@@ -19,8 +19,9 @@ public:
 private slots:
     void on_actionAbout_triggered();
     void on_actionOpen_triggered();
-
     void on_addToPlaylist_clicked();
+    void updatePlaylistCount(const QModelIndex &, int, int last);
+    void checkPlayabilityImmediately();
 
 private:
     Ui::MainWindow *ui;
@@ -30,5 +31,7 @@ private:
     void loadSong(QString filename);
 
     bool eventFilter(QObject* target, QEvent* event);
+
+    void updateSongInfo();
 };
 #endif // MAINWINDOW_H

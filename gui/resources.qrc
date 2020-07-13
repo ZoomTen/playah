@@ -1,5 +1,15 @@
 <RCC>
     <qresource prefix="/">
         <file>art.jpg</file>
+        <file>icon/media-playback-start.svg</file>
+        <file>icon/media-seek-forward.svg</file>
+        <file>icon/media-playback-stop.svg</file>
+        <file>icon/media-seek-backward.svg</file>
+        <file>icon/media-playlist-normal.svg</file>
+        <file>icon/media-playback-pause.svg</file>
+        <file>icon/media-skip-backward.svg</file>
+        <file>icon/media-skip-forward.svg</file>
+        <file>icon/media-playlist-repeat.svg</file>
+        <file>icon/media-playlist-shuffle.svg</file>
     </qresource>
 </RCC>

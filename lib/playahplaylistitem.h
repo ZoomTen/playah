@@ -21,6 +21,11 @@ public:
     QString getTitle() const;
     QString getAuthor() const;
     qint64 getDuration() const;
+    QString getUnsyncLyrics() const;
+    QString getBPMString() const;
+    QString getAlbum() const;
+    QImage* getAlbumArt() const;
+    int getYear() const;
 private:
     PlayahPlaylistItemPrivate* d;
 };

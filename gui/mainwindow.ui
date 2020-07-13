@@ -6,17 +6,133 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>537</width>
+    <width>594</width>
     <height>481</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Playah!</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">#MainWindow, #centralwidget{
+background-color: #111;
+}
+
+#statusbar, #menubar{
+background-color: #222;
+color: #fff;
+}
+
+#menubar:item:selected{
+background-color:#444;
+}
+
+#playerHud{
+background-color: #222;
+border-radius: 10px;
+}
+
+#authorLabel, #titleLabel, #timeLabel{
+color: #eee;
+}
+
+QToolButton {
+border: 1px solid #444;
+border-radius: 11px;
+background-color: #333;
+padding: 2px;
+}
+
+QToolButton:hover {
+background-color: #fff;
+}
+
+QToolButton:pressed {
+background-color: #aaa;
+}
+
+QSlider::groove:horizontal {
+height: 5px;
+background: #345;
+}
+
+QSlider::handle:horizontal {
+width: 5px;
+margin: -3px 0;;
+background: #fff;
+}
+
+QTabWidget::pane {
+    border: none;
+    background: #111;
+}
+
+QTabBar::tab {
+border-bottom: 3px solid #458;
+color: #fff;
+padding: 5px;
+margin-right: 10px;
+}
+
+QTabBar::tab:selected {
+border-bottom: 5px solid #59a;
+}
+
+#playlistTab, #infoTab, #lyricsTab{
+background-color: #458;
+}
+
+#playlistTab *, #infoTab *{
+color: #fff;
+}
+
+#playlistView{
+background-color: #333;
+}
+
+#playlistView:item:selected{
+background-color: #555;
+}
+
+#playlistView:item:hover{
+background-color:#444;
+}
+
+QScrollBar{
+border: none;
+background-color: #222;
+}
+QScrollBar::handle {
+    background: #444;
+    min-width: 20px;
+}
+
+QHeaderView:section {
+border: none;
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #616161, stop: 0.5 #505050,
+                                      stop: 0.6 #434343, stop:1 #656565);
+    color: white;
+    padding-left: 4px;
+}
+
+QMenu {
+    background-color: #444;
+}
+
+QMenu::item {
+    background-color: transparent;
+color: #fff;
+}
+
+QMenu::item:selected { /* when user selects item using mouse or keyboard */
+    background-color: #777;
+}</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
-     <widget class="QWidget" name="widget" native="true">
+     <widget class="QWidget" name="playerHud" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
         <horstretch>0</horstretch>
@@ -85,18 +201,14 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="4" rowspan="2">
-          <widget class="QToolButton" name="skipRight">
+         <item row="2" column="2">
+          <widget class="QLabel" name="albumLabel">
            <property name="text">
-            <string>Skip to next</string>
-           </property>
-           <property name="icon">
-            <iconset theme="media-skip-forward">
-             <normaloff>.</normaloff>.</iconset>
+            <string/>
            </property>
           </widget>
          </item>
-         <item row="0" column="1" rowspan="2">
+         <item row="0" column="1" rowspan="3">
           <widget class="QFrame" name="frame">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -118,21 +230,32 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="0" rowspan="2">
+         <item row="0" column="0" rowspan="3">
           <widget class="QToolButton" name="skipLeft">
            <property name="text">
             <string>Skip to previous</string>
            </property>
            <property name="icon">
-            <iconset theme="media-skip-backward">
-             <normaloff>.</normaloff>.</iconset>
+            <iconset theme="media-skip-backward" resource="resources.qrc">
+             <normaloff>:/icon/media-skip-backward.svg</normaloff>:/icon/media-skip-backward.svg</iconset>
            </property>
           </widget>
          </item>
-         <item row="0" column="3" rowspan="2">
+         <item row="0" column="3" rowspan="3">
           <widget class="QLabel" name="timeLabel">
            <property name="text">
             <string>0:00 / 0:00</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="4" rowspan="3">
+          <widget class="QToolButton" name="skipRight">
+           <property name="text">
+            <string>Skip to next</string>
+           </property>
+           <property name="icon">
+            <iconset theme="media-skip-forward" resource="resources.qrc">
+             <normaloff>:/icon/media-skip-forward.svg</normaloff>:/icon/media-skip-forward.svg</iconset>
            </property>
           </widget>
          </item>
@@ -149,8 +272,8 @@
             <string>Play</string>
            </property>
            <property name="icon">
-            <iconset theme="media-playback-start">
-             <normaloff>.</normaloff>.</iconset>
+            <iconset theme="media-playback-start" resource="resources.qrc">
+             <normaloff>:/icon/media-playback-start.svg</normaloff>:/icon/media-playback-start.svg</iconset>
            </property>
           </widget>
          </item>
@@ -160,8 +283,8 @@
             <string>Pause</string>
            </property>
            <property name="icon">
-            <iconset theme="media-playback-pause">
-             <normaloff>.</normaloff>.</iconset>
+            <iconset theme="media-playback-pause" resource="resources.qrc">
+             <normaloff>:/icon/media-playback-pause.svg</normaloff>:/icon/media-playback-pause.svg</iconset>
            </property>
           </widget>
          </item>
@@ -171,8 +294,8 @@
             <string>Stop</string>
            </property>
            <property name="icon">
-            <iconset theme="media-playback-stop">
-             <normaloff>.</normaloff>.</iconset>
+            <iconset theme="media-playback-stop" resource="resources.qrc">
+             <normaloff>:/icon/media-playback-stop.svg</normaloff>:/icon/media-playback-stop.svg</iconset>
            </property>
           </widget>
          </item>
@@ -198,8 +321,8 @@
             <string>Seek -5 seconds</string>
            </property>
            <property name="icon">
-            <iconset theme="media-seek-backward">
-             <normaloff>.</normaloff>.</iconset>
+            <iconset theme="media-seek-backward" resource="resources.qrc">
+             <normaloff>:/icon/media-seek-backward.svg</normaloff>:/icon/media-seek-backward.svg</iconset>
            </property>
           </widget>
          </item>
@@ -209,8 +332,8 @@
             <string>Seek +5 seconds</string>
            </property>
            <property name="icon">
-            <iconset theme="media-seek-forward">
-             <normaloff>.</normaloff>.</iconset>
+            <iconset theme="media-seek-forward" resource="resources.qrc">
+             <normaloff>:/icon/media-seek-forward.svg</normaloff>:/icon/media-seek-forward.svg</iconset>
            </property>
           </widget>
          </item>
@@ -241,12 +364,12 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
       </property>
-      <widget class="QWidget" name="tab">
+      <widget class="QWidget" name="playlistTab">
        <attribute name="title">
         <string>Playlist</string>
        </attribute>
@@ -287,10 +410,164 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab_2">
+      <widget class="QWidget" name="infoTab">
        <attribute name="title">
         <string>Info</string>
        </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_6">
+        <item>
+         <widget class="QScrollArea" name="scrollArea_2">
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="scrollAreaWidgetContents_2">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>556</width>
+             <height>234</height>
+            </rect>
+           </property>
+           <layout class="QFormLayout" name="formLayout">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>Title</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLabel" name="titleInfo">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Unknown</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>Artist</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLabel" name="artistInfo">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Unknown</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>Album</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLabel" name="albumInfo">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Unknown</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_7">
+              <property name="text">
+               <string>Year</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QLabel" name="yearInfo">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>2006</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="label_9">
+              <property name="text">
+               <string>BPM</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <widget class="QLabel" name="bpmInfo">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Unknown</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="lyricsTab">
+       <attribute name="title">
+        <string>Lyrics</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <item>
+         <widget class="QScrollArea" name="scrollArea">
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="scrollAreaWidgetContents">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>556</width>
+             <height>234</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_5">
+            <item>
+             <widget class="QPlainTextEdit" name="lyricsArea">
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>
@@ -301,7 +578,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>537</width>
+     <width>594</width>
      <height>23</height>
     </rect>
    </property>
@@ -357,6 +634,8 @@
    <header>playlistview.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

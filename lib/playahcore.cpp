@@ -7,14 +7,14 @@
 #include <string.h>
 
 
-QString PlayahCore::applicationVersion(){return "0.0.3";}
+QString PlayahCore::applicationVersion(){return "0.0.4";}
 
 struct PlayahCorePrivate{
     PlayahCore* playah;
 
     QMediaPlayer* player;
     bool paused = false;
-    bool ablePlayed = false;
+    bool ablePlayed = true;
 
     PlayahPlaylistModel* playlist;
     PlayahPlaylistItem*  currentItem;
@@ -31,6 +31,11 @@ PlayahCore::PlayahCore()
 
     QObject::connect(d->player, &QMediaPlayer::durationChanged,
                      this,      &PlayahCore::trackDurationChanged);
+
+    QObject::connect(d->player, &QMediaPlayer::audioAvailableChanged,
+            this,      [=](bool available){
+            d->ablePlayed = available;
+    });
 }
 
 PlayahCore::~PlayahCore()
@@ -60,7 +65,6 @@ bool PlayahCore::loadFile(QString fileName)
 
     bool itemLoaded = false;
     if (newPlaylistItem != 0) itemLoaded = loadPlaylistItemNumber(newPlaylistItem-1);
-
     return itemLoaded;
 }
 
@@ -81,11 +85,11 @@ bool PlayahCore::loadPlaylistItemNumber(int number)
         d->player->setMedia(QUrl::fromLocalFile(fileName));
         if (d->player->error() == QMediaPlayer::Error::NoError){
             emit fileLoaded(fileName);
-            d->ablePlayed = true;
+            return true;
         } else {
-            d->ablePlayed = false;
+            return false;
         }
-        return  d->ablePlayed;
+        return false;
     }
 }
 
