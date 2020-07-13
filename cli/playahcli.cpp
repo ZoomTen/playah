@@ -107,7 +107,7 @@ void PlayahCli::redrawScreen()
     int height = getmaxy(d->window);
 
     // render UI
-    mvprintw(curRow++, 1, "PLAYAH v.0.0.whatever");
+    mvprintw(curRow++, 1, "Playah! CLI v" + qApp->applicationVersion().toUtf8());
     mvprintw(curRow++, 1, "- by Zumi -");
     mvprintw(curRow++, 1, "");
     mvprintw(curRow++, 1, "[q]      = quit");

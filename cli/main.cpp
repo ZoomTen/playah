@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
     QCoreApplication::setApplicationName("Playah-CLI");
-    QCoreApplication::setApplicationVersion("0.0.1");
+    QCoreApplication::setApplicationVersion("0.0.2");
 
     QCommandLineParser parse;
 
