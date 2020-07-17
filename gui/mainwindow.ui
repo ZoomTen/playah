@@ -14,7 +14,7 @@
    <string>Playah!</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">#MainWindow, #centralwidget{
+   <string notr="true">QMainWindow, #centralwidget{
 background-color: #111;
 }
 
@@ -31,7 +31,6 @@ background-color:#444;
 background-color: #222;
 border-radius: 10px;
 }
-
 #authorLabel, #titleLabel, #timeLabel{
 color: #eee;
 }
@@ -42,11 +41,9 @@ border-radius: 11px;
 background-color: #333;
 padding: 2px;
 }
-
 QToolButton:hover {
 background-color: #fff;
 }
-
 QToolButton:pressed {
 background-color: #aaa;
 }
@@ -55,7 +52,6 @@ QSlider::groove:horizontal {
 height: 5px;
 background: #345;
 }
-
 QSlider::handle:horizontal {
 width: 5px;
 margin: -3px 0;;
@@ -66,35 +62,37 @@ QTabWidget::pane {
     border: none;
     background: #111;
 }
-
 QTabBar::tab {
 border-bottom: 3px solid #458;
 color: #fff;
 padding: 5px;
 margin-right: 10px;
 }
-
 QTabBar::tab:selected {
 border-bottom: 5px solid #59a;
 }
-
-#playlistTab, #infoTab, #lyricsTab{
+QTabWidget &gt; QWidget &gt; QWidget{
 background-color: #458;
 }
-
-#playlistTab *, #infoTab *{
+QTabWidget &gt; QWidget &gt; QWidget *{
 color: #fff;
 }
 
-#playlistView{
+QHeaderView:section {
+border: none;
+border-right: 1px solid #303030;
+    background-color: #505050;
+font-weight: bold;
+    color: white;
+    padding-left: 4px;
+}
+QTreeView{
 background-color: #333;
 }
-
-#playlistView:item:selected{
+QTreeView:item:selected{
 background-color: #555;
 }
-
-#playlistView:item:hover{
+QTreeView:item:hover{
 background-color:#444;
 }
 
@@ -107,24 +105,14 @@ QScrollBar::handle {
     min-width: 20px;
 }
 
-QHeaderView:section {
-border: none;
-    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                      stop:0 #616161, stop: 0.5 #505050,
-                                      stop: 0.6 #434343, stop:1 #656565);
-    color: white;
-    padding-left: 4px;
-}
 
 QMenu {
     background-color: #444;
 }
-
 QMenu::item {
     background-color: transparent;
 color: #fff;
 }
-
 QMenu::item:selected { /* when user selects item using mouse or keyboard */
     background-color: #777;
 }</string>
@@ -203,6 +191,70 @@ QMenu::item:selected { /* when user selects item using mouse or keyboard */
          </item>
          <item row="2" column="2">
           <widget class="QLabel" name="albumLabel">
+           <property name="palette">
+            <palette>
+             <active>
+              <colorrole role="Text">
+               <brush brushstyle="SolidPattern">
+                <color alpha="255">
+                 <red>255</red>
+                 <green>255</green>
+                 <blue>255</blue>
+                </color>
+               </brush>
+              </colorrole>
+              <colorrole role="PlaceholderText">
+               <brush brushstyle="SolidPattern">
+                <color alpha="128">
+                 <red>255</red>
+                 <green>255</green>
+                 <blue>255</blue>
+                </color>
+               </brush>
+              </colorrole>
+             </active>
+             <inactive>
+              <colorrole role="Text">
+               <brush brushstyle="SolidPattern">
+                <color alpha="255">
+                 <red>255</red>
+                 <green>255</green>
+                 <blue>255</blue>
+                </color>
+               </brush>
+              </colorrole>
+              <colorrole role="PlaceholderText">
+               <brush brushstyle="SolidPattern">
+                <color alpha="128">
+                 <red>255</red>
+                 <green>255</green>
+                 <blue>255</blue>
+                </color>
+               </brush>
+              </colorrole>
+             </inactive>
+             <disabled>
+              <colorrole role="Text">
+               <brush brushstyle="SolidPattern">
+                <color alpha="96">
+                 <red>164</red>
+                 <green>166</green>
+                 <blue>168</blue>
+                </color>
+               </brush>
+              </colorrole>
+              <colorrole role="PlaceholderText">
+               <brush brushstyle="SolidPattern">
+                <color alpha="128">
+                 <red>218</red>
+                 <green>218</green>
+                 <blue>218</blue>
+                </color>
+               </brush>
+              </colorrole>
+             </disabled>
+            </palette>
+           </property>
            <property name="text">
             <string/>
            </property>

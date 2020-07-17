@@ -22,6 +22,9 @@ struct MainWindowPrivate{
 
     QString  lyricsTabText = QApplication::tr("Lyrics");
     QImage   albumArt;
+
+    int playlistPrevIndex;
+    int playlistNextIndex;
 };
 
 MainWindow::MainWindow(QWidget *parent)
@@ -47,7 +50,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(d->playah, &PlayahCore::trackPositionChanged,
             this,      [=](qint64 position){
         ui->seekBar->setValue(position);
-        qDebug() << d->playah->getPositionAsTime() << d->playah->getDurationAsTime();
         ui->timeLabel->setText(
                     QString("%1 / %2")
                     .arg(d->playah->getPositionAsTime().toString("mm:ss"))
@@ -75,6 +77,31 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->seekRight, &QToolButton::clicked,
             this,           [=]{
         d->playah->seek(5000);
+    });
+
+    connect(ui->skipLeft, &QToolButton::clicked,
+            this,           [=]{
+        // on playlist double click
+        if (d->playlistPrevIndex > 0){
+            QModelIndex newSong = d->playah->getPlaylist()->searchHasId(d->playlistPrevIndex);
+            ui->playlistView->setCurrentIndex(newSong);
+            d->playah->stop();
+            d->playah->loadPlaylistItemNumber(newSong.row());
+            checkPlayabilityImmediately();
+            refreshPlaylistOrder(newSong);
+        }
+    });
+    connect(ui->skipRight, &QToolButton::clicked,
+            this,           [=]{
+        // on playlist double click
+        if (d->playlistNextIndex > 0){
+            QModelIndex newSong = d->playah->getPlaylist()->searchHasId(d->playlistNextIndex);
+            ui->playlistView->setCurrentIndex(newSong);
+            d->playah->stop();
+            d->playah->loadPlaylistItemNumber(newSong.row());
+            checkPlayabilityImmediately();
+            refreshPlaylistOrder(newSong);
+        }
     });
 
     connect(ui->seekBar, &QSlider::sliderMoved,
@@ -121,16 +148,32 @@ MainWindow::MainWindow(QWidget *parent)
         // on playlist double click
         d->playah->stop();
         d->playah->loadPlaylistItemNumber(item.row());
-
-        //qDebug() << item.siblingAtColumn(PlayahPlaylistModel::Title).data();
-        //qDebug() << item.siblingAtColumn(PlayahPlaylistModel::Author).data();
-
         checkPlayabilityImmediately();
+        refreshPlaylistOrder(item);
+    });
+
+    connect(d->playah->getPlaylist(), &PlayahPlaylistModel::rowsInserted,
+            this,             [=](const QModelIndex &, int, int){
+        QModelIndex currentIndex = ui->playlistView->currentIndex();
+        refreshPlaylistOrder(currentIndex);
+    });
+
+    connect(d->playah, &PlayahCore::stopped,
+            this,      [=]{
+        QModelIndex nextIndex = d->playah->getPlaylist()->searchHasId(d->playlistNextIndex);
+        if (nextIndex.isValid()){
+            ui->playlistView->setCurrentIndex(nextIndex);
+            d->playah->loadPlaylistItemNumber(nextIndex.row());
+            checkPlayabilityImmediately();
+            refreshPlaylistOrder(nextIndex);
+        }
     });
 
     ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->lyricsTab));
 
     ui->frame->setFixedWidth(0);
+
+    updatePlaylistCount(QModelIndex(),0,0);
 
     disableControls();
 }
@@ -158,12 +201,14 @@ void MainWindow::on_actionOpen_triggered()
         if (QFile::exists(selectedFile)){
             loadSong(selectedFile);
 
+            QModelIndex nowItem = ui->playlistView->model()->index(
+                        ui->playlistView->model()->rowCount()-1,
+                        0);
+
+            refreshPlaylistOrder(nowItem);
+
             // automatically select last item
-            ui->playlistView->setCurrentIndex(
-                        ui->playlistView->model()->index(
-                            ui->playlistView->model()->rowCount()-1,
-                            0)
-                        );
+            ui->playlistView->setCurrentIndex(nowItem);
             qDebug() << "Loaded!";
         } else {
             QMessageBox errorDialog(this);
@@ -197,6 +242,25 @@ void MainWindow::loadSong(QString filename)
 {
     d->playah->loadFile(filename);
     checkPlayabilityImmediately();
+}
+
+void MainWindow::refreshPlaylistOrder(QModelIndex playlistEntry)
+{
+    QModelIndex above = ui->playlistView->indexAbove(playlistEntry);
+    QModelIndex below = ui->playlistView->indexBelow(playlistEntry);
+
+    if (above.isValid())
+        d->playlistPrevIndex = d->playah->getPlaylist()->getByIndex(above)->getID();
+    else
+        d->playlistPrevIndex = 0;
+
+    if (below.isValid())
+        d->playlistNextIndex = d->playah->getPlaylist()->getByIndex(below)->getID();
+    else
+        d->playlistNextIndex = 0;
+
+    qDebug() << d->playlistPrevIndex;
+    qDebug() << d->playlistNextIndex;
 }
 
 void MainWindow::checkPlayabilityImmediately()

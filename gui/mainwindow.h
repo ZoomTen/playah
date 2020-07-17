@@ -30,6 +30,8 @@ private:
     void enableControls();
     void loadSong(QString filename);
 
+    void refreshPlaylistOrder(QModelIndex playlistEntry);
+
     bool eventFilter(QObject* target, QEvent* event);
 
     void updateSongInfo();
