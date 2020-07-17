@@ -25,6 +25,8 @@ public:
     bool seek(qint64 offset);
     bool seekTo(qint64 offset);
 
+    void setVolume(int volume);
+
     QTime getPositionAsTime();
     QTime getDurationAsTime();
 

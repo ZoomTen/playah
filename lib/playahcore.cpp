@@ -11,7 +11,7 @@
 #include <string.h>
 
 
-QString PlayahCore::applicationVersion(){return "0.6.0";}
+QString PlayahCore::applicationVersion(){return "0.7.0";}
 
 struct PlayahCorePrivate{
     PlayahCore* playah;
@@ -159,6 +159,14 @@ bool PlayahCore::seekTo(qint64 destination)
         d->player->setPosition(destination);
     }
     return d->player->isSeekable();
+}
+
+void PlayahCore::setVolume(int volume)
+{
+    qreal actualVolume = QAudio::convertVolume((qreal)volume/qreal(100.0),
+                                             QAudio::LogarithmicVolumeScale,
+                                             QAudio::LinearVolumeScale);
+    d->player->setVolume(qRound(actualVolume*100));
 }
 
 QTime PlayahCore::getPositionAsTime()

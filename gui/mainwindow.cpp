@@ -109,6 +109,11 @@ MainWindow::MainWindow(QWidget *parent)
         d->playah->seekTo(position);
     });
 
+    connect(ui->volumeSlider, &QSlider::sliderMoved,
+            this,             [=](int position){
+       d->playah->setVolume(position);
+    });
+
     connect(ui->actionAbout_Qt, &QAction::triggered,
             this,               &QApplication::aboutQt);
 

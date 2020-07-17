@@ -397,8 +397,11 @@ QMenu::item:selected { /* when user selects item using mouse or keyboard */
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
            <property name="value">
-            <number>99</number>
+            <number>100</number>
            </property>
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
