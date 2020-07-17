@@ -13,11 +13,12 @@ struct PlayahPlaylistItemPrivate;
 class PLAYAH_EXPORT PlayahPlaylistItem
 {
 public:
-    PlayahPlaylistItem(QString fileName);
+    PlayahPlaylistItem(QString fileName, int id);
     ~PlayahPlaylistItem();
 
     QString getFileName() const;
 
+    qint64 getID() const;
     QString getTitle() const;
     QString getAuthor() const;
     qint64 getDuration() const;

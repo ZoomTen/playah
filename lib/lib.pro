@@ -7,6 +7,9 @@ DEFINES += PLAYAH_LIBRARY
 
 CONFIG += c++11
 
+# comment this out to disable Discord RPC
+CONFIG += has_discord_integration
+
 TARGET = playah
 
 # The following define makes your compiler emit warnings if you use
@@ -43,3 +46,10 @@ unix:!macx: LIBS += -ltag
 win32: LIBS += -LC:/taglib/lib/ -ltag -lz
 win32: INCLUDEPATH += C:/taglib/include
 win32: DEPENDPATH += C:/taglib/include
+
+has_discord_integration {
+    message(Compiling with Discord RPC!)
+    SOURCES += discordintegration.cpp
+    HEADERS += discordintegration.h
+    DEFINES += HAVE_DISCORD
+}

@@ -14,6 +14,7 @@ struct PlayahPlaylistItemPrivate{
 
     QImage* albumArt;
 
+    int id;
     int duration;
     std::wstring title;
     std::wstring author;
@@ -23,35 +24,20 @@ struct PlayahPlaylistItemPrivate{
     std::wstring bpmString;
 };
 
-PlayahPlaylistItem::PlayahPlaylistItem(QString file)
+PlayahPlaylistItem::PlayahPlaylistItem(QString file, int id)
 {
     d = new PlayahPlaylistItemPrivate();
     d->filename = file;
     d->albumArt = nullptr;
-
-    TagLib::FileRef fileref(file.toUtf8().data());
-
-    TagLib::Tag*             tag      = fileref.tag();
-    TagLib::AudioProperties* audProps = fileref.audioProperties();
-
-    if (audProps){
-        d->duration = audProps->lengthInMilliseconds();
-    }
-
-    if (tag){
-        d->title = tag->title().toWString();
-        d->author = tag->artist().toWString();
-        d->album = tag->album().toWString();
-        d->year = tag->year();
-    }
+    d->id = id;
 
     if (file.endsWith(".mp3", Qt::CaseInsensitive)){
-        TagLib::MPEG::File mp3(file.toUtf8());
+        TagLib::MPEG::File mp3(QFile::encodeName(file).constData());
 
         qDebug() << "has id3v1?" << mp3.hasID3v1Tag();
         qDebug() << "has id3v2?" << mp3.hasID3v2Tag();
-
         TagLib::ID3v2::Tag* id3v2 = mp3.ID3v2Tag();
+
         if (id3v2){
             qDebug() << "has id3v2";
             TagLib::ID3v2::FrameListMap frames = id3v2->frameListMap();
@@ -80,6 +66,38 @@ PlayahPlaylistItem::PlayahPlaylistItem(QString file)
                 }
             }
         }
+
+        /* this has to be split due to the way Windows reads files */
+        TagLib::Tag*             tag      = mp3.tag();
+        TagLib::AudioProperties* audProps = mp3.audioProperties();
+
+        if (audProps){
+            d->duration = audProps->lengthInMilliseconds();
+        }
+
+        if (tag){
+            d->title = tag->title().toWString();
+            d->author = tag->artist().toWString();
+            d->album = tag->album().toWString();
+            d->year = tag->year();
+        }
+    } else {
+        /* I really need to learn how templates work lol */
+        TagLib::FileRef fileref(QFile::encodeName(file).constData());
+
+        TagLib::Tag*             tag      = fileref.tag();
+        TagLib::AudioProperties* audProps = fileref.audioProperties();
+
+        if (audProps){
+            d->duration = audProps->lengthInMilliseconds();
+        }
+
+        if (tag){
+            d->title = tag->title().toWString();
+            d->author = tag->artist().toWString();
+            d->album = tag->album().toWString();
+            d->year = tag->year();
+        }
     }
 }
 
@@ -90,6 +108,11 @@ PlayahPlaylistItem::~PlayahPlaylistItem()
 QString PlayahPlaylistItem::getFileName() const
 {
     return d->filename;
+}
+
+qint64 PlayahPlaylistItem::getID() const
+{
+    return d->id;
 }
 
 QString PlayahPlaylistItem::getTitle() const

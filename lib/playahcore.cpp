@@ -1,5 +1,9 @@
 #include "playahcore.h"
 
+#ifdef HAVE_DISCORD
+#include "discordintegration.h"
+#endif
+
 #include <QMediaPlayer>
 
 #include <QDebug>
@@ -7,7 +11,7 @@
 #include <string.h>
 
 
-QString PlayahCore::applicationVersion(){return "0.0.5";}
+QString PlayahCore::applicationVersion(){return "0.6.0";}
 
 struct PlayahCorePrivate{
     PlayahCore* playah;
@@ -27,6 +31,14 @@ PlayahCore::PlayahCore()
     d->player = new QMediaPlayer();
     d->playlist = new PlayahPlaylistModel();
 
+#ifdef HAVE_DISCORD
+    DiscordIntegration discord;
+    QObject::connect(d->player, &QMediaPlayer::stateChanged,
+                     this,      [=](QMediaPlayer::State newState){
+        qDebug() << newState;
+    });
+#endif
+
     QObject::connect(d->player, &QMediaPlayer::positionChanged,
                      this,      &PlayahCore::trackPositionChanged);
 
@@ -39,12 +51,15 @@ PlayahCore::PlayahCore()
             qDebug() << "EOF";
             d->stopped = true;
             d->paused = false;
+            emit stopped();
         }
     });
     QObject::connect(d->player, &QMediaPlayer::audioAvailableChanged,
             this,      [=](bool available){
             d->ablePlayed = available;
     });
+
+    d->player->setNotifyInterval(1000/60); // update position smoothly
 }
 
 PlayahCore::~PlayahCore()
@@ -78,9 +93,8 @@ bool PlayahCore::loadFile(QString fileName)
 }
 
 int PlayahCore::addFileToPlaylist(QString fileName)
-{
-    PlayahPlaylistItem playlistEntry(fileName);
-    d->playlist->append(playlistEntry);
+{;
+    d->playlist->append(fileName);
     return d->playlist->itemCount();
 }
 

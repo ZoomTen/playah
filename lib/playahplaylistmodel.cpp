@@ -5,12 +5,14 @@
 
 struct PlayahPlaylistModelPrivate{
     QList<PlayahPlaylistItem> items;
+    int lastId;
 };
 
 PlayahPlaylistModel::PlayahPlaylistModel(QObject* parent):
     QAbstractTableModel(parent)
 {
     d = new PlayahPlaylistModelPrivate();
+    d->lastId = 0;
 }
 
 PlayahPlaylistModel::~PlayahPlaylistModel()
@@ -50,6 +52,8 @@ QVariant PlayahPlaylistModel::data(const QModelIndex &index, int role) const
         return QTime::fromMSecsSinceStartOfDay(item.getDuration()).toString("mm:ss");
     case FileName:
         return item.getFileName();
+//    case EID:
+//        return item.getID();
     default:
         return QVariant();
     }
@@ -86,18 +90,23 @@ PlayahPlaylistItem* PlayahPlaylistModel::getItem(int itemNumber)
     return &d->items[itemNumber];
 }
 
-void PlayahPlaylistModel::append(const PlayahPlaylistItem &item)
+PlayahPlaylistItem *PlayahPlaylistModel::getByIndex(const QModelIndex &index)
+{
+    return &d->items[index.row()];
+}
+
+void PlayahPlaylistModel::append(const QString filename)
 {
     // TODO: make this call insertInto
     beginInsertRows(QModelIndex(), d->items.count(), d->items.count());
-    d->items.append(item);
+    d->items.append(PlayahPlaylistItem(filename, ++d->lastId));
     endInsertRows();
 }
 
-void PlayahPlaylistModel::insertInto(const PlayahPlaylistItem &item, int row)
+void PlayahPlaylistModel::insertInto(const QString filename, int row)
 {
     beginInsertRows(QModelIndex(), row, row);
-    d->items.insert(row, item);
+    d->items.insert(row, PlayahPlaylistItem(filename, ++d->lastId));
     endInsertRows();
 }
 
@@ -147,16 +156,15 @@ Qt::ItemFlags PlayahPlaylistModel::flags(const QModelIndex &index) const
     return Qt::ItemIsDropEnabled | Qt::ItemIsDragEnabled | defaultFlags;
 }
 
-bool PlayahPlaylistModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+bool PlayahPlaylistModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int, const QModelIndex &parent)
 {
     if (action == Qt::CopyAction) {
         if (data->hasUrls()) {
             for (QUrl url : data->urls()) {
-                PlayahPlaylistItem newItem(url.toLocalFile());
                 if (row < 0)
-                    this->append(newItem);
+                    this->append(url.toLocalFile());
                 else
-                    this->insertInto(newItem, row);
+                    this->insertInto(url.toLocalFile(), row);
             }
             return true;
         } else {
@@ -166,4 +174,13 @@ bool PlayahPlaylistModel::dropMimeData(const QMimeData *data, Qt::DropAction act
         return true;
     }
     return true;
+}
+
+QModelIndex PlayahPlaylistModel::searchHasId(int id, QModelIndex parent)
+{
+    for (int i=0; i < this->rowCount(parent); i++){
+        QModelIndex index = this->index(i, 0, parent);
+        if (this->getByIndex(index)->getID() == id) return index;
+    }
+    return QModelIndex();
 }

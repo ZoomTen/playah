@@ -13,6 +13,7 @@ public:
         Author,
         FileName,
         Duration,
+//        EID,
         COLUMNS_END
     };
 
@@ -29,9 +30,10 @@ public:
     QString getFileName(const QModelIndex &index);
 
     PlayahPlaylistItem* getItem(int itemNumber);
+    PlayahPlaylistItem* getByIndex(const QModelIndex &index);
 
-    void append(const PlayahPlaylistItem & item);
-    void insertInto(const PlayahPlaylistItem &item, int row);
+    void append(const QString filename);
+    void insertInto(const QString filename, int row);
 
     void removeEntryNumber(int i);
 
@@ -41,7 +43,9 @@ public:
     QMimeData* mimeData(const QModelIndexList &indexes) const override;
     Qt::DropActions supportedDropActions() const override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
-    bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
+    bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int, const QModelIndex &parent) override;
+
+    QModelIndex searchHasId(int id = 0, QModelIndex parent = QModelIndex());
 private:
     PlayahPlaylistModelPrivate* d;
 };

@@ -49,6 +49,7 @@ signals:
     void trackDurationChanged(qint64 duration);
     void trackPositionChanged(qint64 position);
     void fileLoaded(QString fileName);
+    void stopped();
 
 private:
     static PlayahCorePrivate* d;
