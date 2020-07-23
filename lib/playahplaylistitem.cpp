@@ -72,7 +72,7 @@ PlayahPlaylistItem::PlayahPlaylistItem(QString file, int id)
         TagLib::AudioProperties* audProps = mp3.audioProperties();
 
         if (audProps){
-            d->duration = audProps->lengthInMilliseconds();
+            d->duration = audProps->lengthInSeconds();
         }
 
         if (tag){
@@ -89,7 +89,7 @@ PlayahPlaylistItem::PlayahPlaylistItem(QString file, int id)
         TagLib::AudioProperties* audProps = fileref.audioProperties();
 
         if (audProps){
-            d->duration = audProps->lengthInMilliseconds();
+            d->duration = audProps->lengthInSeconds();
         }
 
         if (tag){

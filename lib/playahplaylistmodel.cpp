@@ -49,7 +49,7 @@ QVariant PlayahPlaylistModel::data(const QModelIndex &index, int role) const
     case Author:
         return item.getAuthor();
     case Duration:
-        return QTime::fromMSecsSinceStartOfDay(item.getDuration()).toString("mm:ss");
+        return QTime::fromMSecsSinceStartOfDay(item.getDuration()*1000).toString("mm:ss");
     case FileName:
         return item.getFileName();
 //    case EID:
@@ -123,7 +123,7 @@ QTime PlayahPlaylistModel::getTotalPlaytime()
     for (PlayahPlaylistItem item : d->items){
         runTime += item.getDuration();
     }
-    return QTime::fromMSecsSinceStartOfDay(runTime);
+    return QTime::fromMSecsSinceStartOfDay(runTime*1000);
 }
 
 QStringList PlayahPlaylistModel::mimeTypes() const

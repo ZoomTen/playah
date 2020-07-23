@@ -11,7 +11,7 @@
 #include <string.h>
 
 
-QString PlayahCore::applicationVersion(){return "0.7.0";}
+QString PlayahCore::applicationVersion(){return "0.7.1";}
 
 struct PlayahCorePrivate{
     PlayahCore* playah;
@@ -23,6 +23,9 @@ struct PlayahCorePrivate{
 
     PlayahPlaylistModel* playlist;
     PlayahPlaylistItem*  currentItem;
+#ifdef HAVE_DISCORD
+    DiscordIntegration* discord;
+#endif
 };
 PlayahCorePrivate* PlayahCore::d = new PlayahCorePrivate();
 
@@ -32,10 +35,29 @@ PlayahCore::PlayahCore()
     d->playlist = new PlayahPlaylistModel();
 
 #ifdef HAVE_DISCORD
-    DiscordIntegration discord;
+    d->discord = new DiscordIntegration();
     QObject::connect(d->player, &QMediaPlayer::stateChanged,
                      this,      [=](QMediaPlayer::State newState){
         qDebug() << newState;
+        switch (newState) {
+        case QMediaPlayer::PlayingState:
+            d->discord->updateState(d->currentItem->getAuthor(),
+                                d->currentItem->getTitle(),
+                                DiscordIntegration::DI_Play);
+            break;
+        case QMediaPlayer::PausedState:
+            d->discord->updateState(d->currentItem->getAuthor(),
+                                d->currentItem->getTitle(),
+                                DiscordIntegration::DI_Paused);
+            break;
+        case QMediaPlayer::StoppedState:
+            d->discord->updateState(d->currentItem->getAuthor(),
+                                d->currentItem->getTitle(),
+                                DiscordIntegration::DI_Stopped);
+            break;
+        default:
+            break;
+        }
     });
 #endif
 
